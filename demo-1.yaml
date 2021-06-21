@@ -1,0 +1,29 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: pipeline-assignment
+spec:
+  workspaces:
+    - name: pipeline-assignment-data
+  tasks:
+    - name: clone-repository
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: https://github.com/upslopeio/lint-markdown-files
+      workspaces:
+        - name: output
+          workspace: pipeline-assignment-data
+    - name: lint-run
+      taskRef:
+        name: markdown-lint
+      runAfter:
+        - clone-repository
+      workspaces:
+        - name: shared-workspace
+          workspace: pipeline-assignment-data
+      params:
+        - name: args
+          value: ["."]
